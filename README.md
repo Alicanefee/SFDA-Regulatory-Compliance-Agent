@@ -9,7 +9,7 @@
 
 > ⚠️ **For demonstration and testing purposes only.** The regulatory corpus is synthetic and the sample submission is fictional. The output is not legal or regulatory advice and not a regulatory clearance. **All legal and regulatory obligations arising from use of this software remain solely with the user.** See [DISCLAIMER.md](DISCLAIMER.md).
 
-**Author**: Ali Can Efe — Dubai, UAE · `ali_canefe@hotmail.com`
+**Author**: Ali Can Efe — Dubai, UAE
 
 ---
 
@@ -73,7 +73,7 @@ cd src
 python main.py --submission ../data/sample_submission/sample_package.json
 ```
 
-Expected output on the sample submission (Canon VITRAE MRI → UAE MoHAP):
+Expected output on the sample submission (example MRI system → UAE MoHAP):
 - 🔴 Critical: Labelling Arabic missing
 - 🔴 Critical: IFU Arabic is machine-translated (must be certified)
 - 🔴 Critical: Cybersecurity documentation missing
@@ -137,7 +137,7 @@ SFDA-Regulatory-Compliance-Agent/
 │   │   ├── uae_mohap_requirements.txt
 │   │   └── imdrf_requirements.txt
 │   ├── sample_submission/
-│   │   └── sample_package.json        ← Test case (Canon VITRAE MRI → UAE MoHAP)
+│   │   └── sample_package.json        ← Test case (example MRI system → UAE MoHAP)
 │   └── state_machine.yaml             ← State machine definition (TODO)
 │
 ├── notebooks/
@@ -162,4 +162,4 @@ Full terms: [DISCLAIMER.md](DISCLAIMER.md).
 
 ## 👤 Author
 
-**Ali Can Efe** — biomedical engineer with 10 years at Canon Medical Systems (MRI product management, META region; regulatory and compliance work for an AI-enabled imaging portfolio). Based in Dubai, UAE.
+**Ali Can Efe** — biomedical engineer with 10 years in medical imaging (MRI product management, META region; regulatory and compliance work for AI-enabled imaging). Based in Dubai, UAE.

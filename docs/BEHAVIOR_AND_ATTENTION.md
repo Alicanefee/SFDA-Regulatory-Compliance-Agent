@@ -222,7 +222,7 @@ The agent should communicate with the user as follows:
 **After classification (CONFIRM_CLASS):**
 ```
 [Classification Result]
-Device: Canon VITRAE MRI System (1.5T)
+Device: Example MRI System (1.5T)
 Intended use: Diagnostic imaging via magnetic resonance
 Risk class: **C** (per MDS-G008, Rule 13 — diagnostic imaging with non-ionizing radiation)
 

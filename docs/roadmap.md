@@ -8,7 +8,7 @@
 - ✅ Cohere Command R+ with RAG + tool use
 - ✅ Grounded citation defense (3-layer hallucination prevention)
 - ✅ Sample regulatory corpus (Saudi + UAE + IMDRF)
-- ✅ Sample submission package (Canon VITRAE MRI → UAE MoHAP)
+- ✅ Sample submission package (example MRI system → UAE MoHAP)
 - ✅ CLI output (table / JSON / markdown)
 - ✅ All planning docs (PLAN.md, BEHAVIOR_AND_ATTENTION.md, architecture.md)
 

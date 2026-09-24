@@ -7,7 +7,7 @@ Wraps Cohere Rerank v3 for precision-boosting on top of vector retrieval.
 Why rerank:
 - Pure vector retrieval is fast but lossy — conflates semantic similarity with task relevance
 - Rerank is a separate model that scores query-document pairs more carefully
-- Best practice (Microsoft BEIR): retrieve 10-50 candidates with vector, rerank to top-5
+- Best practice (BEIR benchmark): retrieve 10-50 candidates with vector, rerank to top-5
 
 Two variants:
 - rerank-english-v3.0: for English-only queries
