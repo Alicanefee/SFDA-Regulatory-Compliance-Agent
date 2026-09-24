@@ -1,0 +1,45 @@
+[SFDA-MD-5.1]
+Saudi FDA — Medical Devices Interim Regulations, Article 5.1
+Application for medical device registration shall include: (a) device description
+including intended use, principles of operation, and accessories; (b) risk
+classification per SFDA-MD-REQ-1 Annex 1; (c) conformity assessment certificate
+from a recognized body; (d) device master file (DMF); (e) labelling in Arabic
+and English; (f) IFU (Instructions for Use) in Arabic and English.
+
+---
+[SFDA-MD-5.2]
+Saudi FDA — Medical Devices Interim Regulations, Article 5.2
+All submitted technical documentation must be in English, with Arabic translations
+of patient-facing materials (labelling, IFU, patient information leaflets).
+Technical specifications may be submitted in English only.
+
+---
+[SFDA-MD-5.3]
+Saudi FDA — Medical Devices Interim Regulations, Article 5.3
+The applicant shall appoint a Saudi-based Authorized Representative (AR) holding
+a valid SFDA Medical Devices Establishment License. The AR's appointment letter
+must be notarized and apostilled in the country of origin.
+
+---
+[SFDA-MD-5.4]
+Saudi FDA — Medical Devices Interim Regulations, Article 5.4
+Clinical evaluation report (CER) is required for all Class IIa, IIb, and III
+devices. The CER must follow MEDDEV 2.7/1 rev.4 methodology and include
+equivalence analysis, clinical literature review, and post-market surveillance
+data from equivalent devices.
+
+---
+[SFDA-MD-5.5]
+Saudi FDA — Medical Devices Interim Regulations, Article 5.5
+Post-Market Surveillance Plan (PMSP) must be submitted as part of the technical
+file. The plan shall define: (a) risk-based reporting intervals; (b) complaint
+handling procedure; (c) trend reporting thresholds; (d) periodic safety update
+report (PSUR) frequency.
+
+---
+[SFDA-MD-5.6]
+Saudi FDA — Medical Devices Interim Regulations, Article 5.6
+Quality Management System (QMS) certificate (ISO 13485:2016) issued by a
+Medical Device Single Audit Programme (MDSAP) recognized auditing organization
+must accompany the application. The certificate must be valid for the entire
+registration period (5 years) or re-issued upon expiry.

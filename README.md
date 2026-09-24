@@ -1,0 +1,159 @@
+# SFDA Regulatory Compliance Agent
+
+> **Saudi FDA (SFDA) regulatory pre-check AI agent** for medical device submissions.
+> Detects missing documents, format issues, and regulatory language gaps BEFORE submission — saving 2-3 months of regulator back-and-forth.
+
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Status: v0.1.0 MVP](https://img.shields.io/badge/status-v0.1.0%20MVP-orange.svg)](docs/roadmap.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**Repository**: github.com/Alicanefee/SFDA-Regulatory-Compliance-Agent
+**Author**: Ali Can Efe — Dubai, UAE · `ali_canefe@hotmail.com`
+
+---
+
+## 🎯 What this is
+
+A deterministic AI agent that scans medical-device submission packages against the Saudi SFDA regulatory corpus and flags issues before submission. Designed for **medical device manufacturers** and **regulatory affairs teams** who submit to SFDA.
+
+**Why this exists**: A single missing form, an unverified Arabic translation, or a clinical evaluation report citing the wrong MEDDEV revision can mean **2-3 months of delay** with the regulator. This agent catches those issues before submission.
+
+## 🏗️ Architecture (4-layer)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Layer 4: UI + Excel Log                                        │  ← Streamlit + openpyxl (hash chain)
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 3: Deterministic Agent Graph (state machine)             │  ← YAML-driven, LLM does not pick agents
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 2: Fixed Vector Layer + Hybrid Retrieval                │  ← BGE-M3 + BM25 + Cohere Rerank
+├─────────────────────────────────────────────────────────────────┤
+│  Layer 1: Document Ingest + Standardization                    │  ← unstructured + pypdf + Tesseract
+└─────────────────────────────────────────────────────────────────┘
+```
+
+📖 **Full plan**: [`docs/PLAN.md`](docs/PLAN.md) (4-layer architecture, 7 agent roles, state machine, fixed vector schema, big-document strategy, Excel log sheets, current SFDA regulations)
+
+📖 **Behavior & Attention**: [`docs/BEHAVIOR_AND_ATTENTION.md`](docs/BEHAVIOR_AND_ATTENTION.md) (15 refinements, 10 behavior rules, 30-item attention priority list P0-P3, 4-phase implementation)
+
+📖 **Architecture**: [`docs/architecture.md`](docs/architecture.md) (defense layers, failure modes, production upgrade path)
+
+📖 **Roadmap**: [`docs/roadmap.md`](docs/roadmap.md) (v0.1 MVP → v1.0 production, honest scoping)
+
+## 🤖 7 Agent Roles
+
+| Agent | Role | Status |
+|---|---|---|
+| **Orchestrator** | Manages state machine, generates user messages | 🚧 stub |
+| **Ingest Agent** | OCR/parse, chunk, extract metadata | 🚧 stub |
+| **Classifier Agent** | MDS-G008 + MDS-G5 risk class detection | 🚧 stub |
+| **Evidence Validator** | Clause-level compliance validation | 🚧 stub |
+| **Checklist Agent** | Per-class document list | 🚧 stub |
+| **Excel Logger** | Hash-chain audit trail to .xlsx | 🚧 stub |
+| **Regulatory Watcher** | SFDA site scanning, version diffs | 🚧 stub |
+
+State machine (YAML-driven):
+```
+UPLOAD → INGEST → CLASSIFY → CONFIRM_CLASS → CHECKLIST → COLLECT → VALIDATE → REPORT → DONE
+```
+
+## 🚀 Quick start (v0.1 MVP — currently minimal)
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Set your Cohere API key (free trial at https://cohere.com)
+cp .env.example .env
+# Edit .env and add COHERE_API_KEY
+
+# 3. Run the MVP pre-check (currently uses Cohere Command R+)
+cd src
+python main.py --submission ../data/sample_submission/sample_package.json
+```
+
+Expected output on the sample submission (Canon VITRAE MRI → UAE MoHAP):
+- 🔴 Critical: Labelling Arabic missing
+- 🔴 Critical: IFU Arabic is machine-translated (must be certified)
+- 🔴 Critical: Cybersecurity documentation missing
+- 🟡 Warning: PMS System documentation missing
+- 🟡 Warning: Data protection compliance statement missing
+
+## 📊 Current state (honest)
+
+- **Status**: v0.1 MVP — single-jurisdiction pre-check, basic RAG + tool use
+- **What works**: Cohere Command R+ with RAG + tool use + grounded citation defense (3-layer hallucination prevention)
+- **What's stubbed**: 6 of the 7 agent roles (only the validation flow is implemented), state machine YAML, Excel hash chain, Regulatory Watcher
+- **What's missing**: Arabic NLP pipeline, multi-jurisdiction support, web UI, audit hardening
+
+See [`docs/roadmap.md`](docs/roadmap.md) for full v0.1 → v1.0 plan.
+
+## 🗂️ Repository layout
+
+```
+SFDA-Regulatory-Compliance-Agent/
+├── README.md                          ← this file
+├── LICENSE                            ← MIT
+├── requirements.txt
+├── .env.example
+├── .gitignore
+│
+├── docs/
+│   ├── PLAN.md                        ← User-authored nihai plan
+│   ├── BEHAVIOR_AND_ATTENTION.md     ← Refinman + davranış + dikkat listesi
+│   ├── architecture.md                ← Detailed architecture
+│   └── roadmap.md                     ← v0.1 → v1.0 honest roadmap
+│
+├── src/
+│   ├── main.py                        ← v0.1 MVP entry point (Cohere agent)
+│   ├── state_machine.py               ← TODO: YAML-driven state transitions
+│   ├── context_packet.py              ← TODO: Context packet builder
+│   ├── agents/                        ← 7 agent role stubs
+│   │   ├── orchestrator.py
+│   │   ├── ingest.py
+│   │   ├── classifier.py
+│   │   ├── checklist.py
+│   │   ├── evidence_validator.py
+│   │   ├── excel_logger.py
+│   │   └── regulatory_watcher.py
+│   ├── retrieval/
+│   │   ├── vector_store.py            ← ChromaDB wrapper (TODO)
+│   │   ├── embeddings.py              ← BGE-M3 wrapper (fixed schema, TODO)
+│   │   └── rerank.py                  ← Cohere Rerank wrapper (TODO)
+│   ├── prompts/
+│   │   ├── classifier.md
+│   │   ├── evidence_validator.md
+│   │   └── orchestrator.md
+│   └── utils/
+│       ├── excel_writer.py            ← openpyxl + hash chain (TODO)
+│       ├── audit.py                   ← Hash chain validator (TODO)
+│       └── config.py
+│
+├── data/
+│   ├── regulatory_corpus/             ← Saudi + UAE + IMDRF sample clauses
+│   │   ├── saudi_fda_requirements.txt
+│   │   ├── uae_mohap_requirements.txt
+│   │   └── imdrf_requirements.txt
+│   ├── sample_submission/
+│   │   └── sample_package.json        ← Test case (Canon VITRAE MRI → UAE MoHAP)
+│   └── state_machine.yaml             ← State machine definition (TODO)
+│
+├── notebooks/
+│   └── demo_walkthrough.ipynb         ← TODO: End-to-end demo notebook
+│
+└── tests/
+    └── __init__.py
+```
+
+## ⚠️ Disclaimers
+
+- This is **independent R&D**, not an officially endorsed SFDA tool
+- Sample regulatory clauses in `data/regulatory_corpus/` are **synthetic** — written for demonstration only, they do NOT represent official SFDA regulatory text
+- For actual regulatory compliance work, always consult official SFDA sources and a licensed regulatory affairs professional
+- This agent does NOT provide legal advice
+
+## 📋 Background context
+
+This project is being built by Ali Can Efe — biomedical engineer + 10 years at Canon Medical Systems (MRI product management, META region, regulatory & compliance work for AI-enabled imaging portfolio). Currently based in Dubai, transitioning to enterprise AI Customer Success.
+
+See the sister repository [`ali-can-efe-portfolio`](https://github.com/Alicanefee/ali-can-efe-portfolio) for the broader GenAI portfolio this project originated from.

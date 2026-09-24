@@ -1,0 +1,39 @@
+# Core dependencies for the portfolio
+# Tested on Python 3.11+
+
+# Cohere SDK (primary LLM provider — Command R+, Embed v3, Rerank)
+cohere>=5.5.0
+
+# RAG / agentic orchestration
+langchain>=0.3.0
+langchain-cohere>=0.2.0
+llama-index>=0.11.0
+
+# Notebooks / data
+jupyter>=1.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# LLM eval
+datasets>=2.20.0
+evaluate>=0.4.0
+rouge-score>=0.1.2
+sacrebleu>=2.4.0
+
+# Vector store (lightweight, local)
+chromadb>=0.5.0
+
+# Document processing
+pypdf>=4.0.0
+python-docx>=1.1.0
+
+# Env loading
+python-dotenv>=1.0.0
+
+# CLI
+click>=8.1.0
+rich>=13.7.0
+
+# On-prem serving (05-onprem-deploy)
+# Note: vLLM is heavy; install only when needed:
+#   pip install vllm>=0.6.0

@@ -1,0 +1,44 @@
+[MOHAP-MD-2.1]
+UAE MoHAP — Federal Law No. 8 of 2023 (Medical Devices), Article 2.1
+Application for medical device registration shall include: (a) device
+description and intended purpose; (b) risk classification per MoHAP-REQ-2; (c)
+Declaration of Conformity (DoC); (d) technical file; (e) IFU in Arabic and
+English; (f) labelling in Arabic and English; (g) clinical evaluation report
+for Class IIa/IIb/III; (h) risk management file per ISO 14971:2019.
+
+---
+[MOHAP-MD-2.2]
+UAE MoHAP — Federal Law No. 8 of 2023 (Medical Devices), Article 2.2
+Applicant must appoint a UAE-based Local Authorized Representative (LAR) holding
+a valid MoHAP Medical Devices License. The LAR's appointment letter must be
+legalized by the UAE Ministry of Foreign Affairs (MoFA).
+
+---
+[MOHAP-MD-2.3]
+UAE MoHAP — Federal Law No. 8 of 2023 (Medical Devices), Article 2.3
+All patient-facing documentation (IFU, labelling, patient leaflets) must be
+provided in both Arabic and English. The Arabic version must be reviewed by a
+certified Arabic medical translator and stamped by the LAR.
+
+---
+[MOHAP-MD-2.4]
+UAE MoHAP — Federal Law No. 8 of 2023 (Medical Devices), Article 2.4
+Cybersecurity documentation is required for connected medical devices: (a)
+cybersecurity risk assessment per IEC 81001-5-1; (b) software bill of materials
+(SBOM); (c) threat model; (d) post-market cybersecurity plan (PMCP).
+
+---
+[MOHAP-MD-2.5]
+UAE MoHAP — Federal Law No. 8 of 2023 (Medical Devices), Article 2.5
+Post-Market Surveillance System (PMSS) documentation must be submitted. Must
+include: vigilance reporting procedure (FSCA within 10 days of awareness),
+trend reporting (quarterly), periodic safety update reports (annually for
+Class IIb/III, every 2 years for Class IIa).
+
+---
+[MOHAP-MD-2.6]
+UAE MoHAP — Federal Law No. 8 of 2023 (Medical Devices), Article 2.6
+Data protection compliance statement required for devices processing personal
+health data. Must reference UAE Federal Decree-Law No. 45 of 2021 (PDPL) and
+provide: (a) data flow diagram; (b) lawful basis for processing; (c) data
+retention policy; (d) patient consent mechanism.

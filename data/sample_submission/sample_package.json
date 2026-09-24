@@ -1,0 +1,17 @@
+{
+  "device_name": "Canon Medical VITRAE MRI System (1.5T)",
+  "jurisdiction": "UAE MoHAP",
+  "applicant": "Canon Medical Systems Middle East FZ-LLC",
+  "submission_date": "2026-09-15",
+  "submitted_documents": [
+    {"name": "Device Technical File", "type": "technical_file", "path": "docs/tech_file.pdf"},
+    {"name": "Risk Management File (ISO 14971)", "type": "risk_management", "path": "docs/rmf.pdf"},
+    {"name": "ISO 13485:2016 Certificate (MDSAP)", "type": "qms_certificate", "path": "docs/iso13485.pdf"},
+    {"name": "Clinical Evaluation Report (MEDDEV 2.7/1 rev.4)", "type": "cer", "path": "docs/cer.pdf"},
+    {"name": "IFU English", "type": "ifu", "path": "docs/ifu_en.pdf"},
+    {"name": "IFU Arabic (machine translated)", "type": "ifu", "path": "docs/ifu_ar_mt.pdf"},
+    {"name": "Labelling English", "type": "labelling", "path": "docs/label_en.pdf"},
+    {"name": "LAR Appointment Letter", "type": "appointment_letter", "path": "docs/lar_letter.pdf"},
+    {"name": "Declaration of Conformity", "type": "doc", "path": "docs/doc.pdf"}
+  ]
+}
