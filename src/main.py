@@ -61,6 +61,13 @@ COHERE_MODEL = "command-r-plus"  # frontier model
 COHERE_EMBED_MODEL = "embed-english-v3.0"
 COHERE_RERANK_MODEL = "rerank-english-v3.0"
 
+DISCLAIMER = (
+    "Demonstration only — based on a synthetic regulatory corpus. Not legal or "
+    "regulatory advice and not a regulatory clearance. You are solely responsible "
+    "for verifying requirements with the authority and for all legal obligations "
+    "arising from your decisions. See DISCLAIMER.md."
+)
+
 
 # ---------------------------------------------------------------------------
 # Data classes
@@ -378,6 +385,7 @@ def render_markdown_report(
             "No missing documents, format issues, or language gaps detected "
             "against the indexed regulatory corpus."
         )
+        lines += ["", "---", "", f"_{DISCLAIMER}_"]
         return "\n".join(lines)
 
     by_severity: dict[str, list[Finding]] = {"critical": [], "warning": [], "info": []}
@@ -404,6 +412,7 @@ def render_markdown_report(
                 lines.append(f"- **Suggested fix**: {f.suggested_fix}")
             lines.append("")
 
+    lines += ["---", "", f"_{DISCLAIMER}_"]
     return "\n".join(lines)
 
 
@@ -521,13 +530,15 @@ def main(
     )
     if n_crit > 0:
         console.print(
-            f"[red]✗ Submission has {n_crit} critical issue(s) — fix before submitting.[/red]"
+            f"[red]✗ {n_crit} critical issue(s) found in this demo check.[/red]"
         )
-        sys.exit(1)
     else:
         console.print(
-            "[green]✓ No critical issues — submission may proceed.[/green]"
+            "[green]✓ No critical issues found in this demo check.[/green]"
         )
+    console.print(f"[yellow]{DISCLAIMER}[/yellow]")
+    if n_crit > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

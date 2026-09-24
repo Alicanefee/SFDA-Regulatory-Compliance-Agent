@@ -44,4 +44,4 @@ If REPORT state:
 Audit hash: <hash> (chain verification OK)
 Version snapshot: <mds_g5_version> / <mds_g008_version> / ...
 
-Disclaimer: This agent does not provide official SFDA advice. Consult SFDA for official approval.
+Disclaimer: Demonstration only. This agent does not provide official SFDA, legal or regulatory advice. Consult SFDA for official approval. All legal obligations arising from your decisions remain solely with you.

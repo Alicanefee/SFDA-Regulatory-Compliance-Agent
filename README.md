@@ -7,6 +7,8 @@
 [![Status: v0.1.0 MVP](https://img.shields.io/badge/status-v0.1.0%20MVP-orange.svg)](docs/roadmap.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+> ⚠️ **For demonstration and testing purposes only.** The regulatory corpus is synthetic and the sample submission is fictional. The output is not legal or regulatory advice and not a regulatory clearance. **All legal and regulatory obligations arising from use of this software remain solely with the user.** See [DISCLAIMER.md](DISCLAIMER.md).
+
 **Author**: Ali Can Efe — Dubai, UAE · `ali_canefe@hotmail.com`
 
 ---
@@ -93,6 +95,7 @@ See [`docs/roadmap.md`](docs/roadmap.md) for full v0.1 → v1.0 plan.
 SFDA-Regulatory-Compliance-Agent/
 ├── README.md                          ← this file
 ├── LICENSE                            ← MIT
+├── DISCLAIMER.md                      ← Demonstration-only terms and user responsibility
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
@@ -146,10 +149,16 @@ SFDA-Regulatory-Compliance-Agent/
 
 ## ⚠️ Disclaimers
 
-- This is **independent R&D**, not an officially endorsed SFDA tool
+- **This project is for demonstration and testing purposes only.** It must not be used for real medical device submissions or compliance decisions.
 - Sample regulatory clauses in `data/regulatory_corpus/` are **synthetic** — written for demonstration only, they do NOT represent official SFDA regulatory text
+- The sample submission in `data/sample_submission/` is **fictional**; names are used for illustration only
+- This agent does NOT provide legal or regulatory advice, and its output is not a regulatory clearance
+- **The user is solely responsible** for verifying requirements with the authority and for **all legal and regulatory obligations** arising from use of this software or decisions based on its output
+- The author accepts no liability for any loss, rejection, delay or other consequence arising from its use
+- This is **independent R&D**, not affiliated with or endorsed by SFDA or any other authority
 - For actual regulatory compliance work, always consult official SFDA sources and a licensed regulatory affairs professional
-- This agent does NOT provide legal advice
+
+Full terms: [DISCLAIMER.md](DISCLAIMER.md).
 
 ## 👤 Author
 
