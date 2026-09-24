@@ -1,90 +1,90 @@
-# SFDA AI Kontrol Ajanı — Detaylı Plan
+# SFDA AI Compliance Agent — Detailed Plan
 
-> Mühendislik seviyesinde uygulanabilir olmak üzere yazılmış proje planı.
-> Son güncelleme: 2026-09-24
+> Project plan, written to be implementable at engineering level.
+> Last updated: 2026-09-24
 
 ---
 
-## 1. Genel Mimari ve Katmanlı Yaklaşım
+## 1. Overall Architecture and Layered Approach
 
-Dört ana katman:
+Four main layers:
 
-| Katman | Görev | Çıktı |
+| Layer | Responsibility | Output |
 |---|---|---|
-| **Katman 1: Doküman Alım ve Standartlaştırma** | Yüklenen dokümanları OCR/parse eder, yapısal JSON'a çevirir, metadata çıkarır | Standart chunk'lar |
-| **Katman 2: Sabit Vektör ve Retrieval** | Chunk'ları sabit embedding modeliyle vektörleştirir, koleksiyonlara ayırır, hibrit retrieval yapar | İlgili chunk'lar |
-| **Katman 3: Deterministik Ajan Grafiği** | State machine tarafından yönetilen sabit ajan rolleri | Sınıflandırma, doğrulama, checklist |
-| **Katman 4: Arayüz ve Yerel Kayıt** | Web arayüzü, Excel loglama, süreç takibi | Kullanıcı etkileşimi, denetim izi |
+| **Layer 1: Document Ingest and Standardization** | OCRs/parses uploaded documents, converts them to structured JSON, extracts metadata | Standardized chunks |
+| **Layer 2: Fixed Vector Layer and Retrieval** | Embeds chunks with a fixed embedding model, splits them into collections, performs hybrid retrieval | Relevant chunks |
+| **Layer 3: Deterministic Agent Graph** | Fixed agent roles managed by a state machine | Classification, validation, checklist |
+| **Layer 4: UI and Local Log** | Web UI, Excel logging, process tracking | User interaction, audit trail |
 
-## 2. Sabit Ajan Grafiği (Background Agentization)
+## 2. Fixed Agent Graph (Background Agentization)
 
-LLM ajan seçmez. State machine neyi söylerse o ajan çalışır. Ajan rolleri, girdi/çıktıları ve geçiş koşulları YAML'da sabittir.
+The LLM does not choose agents. Whichever agent the state machine specifies is the one that runs. Agent roles, their inputs/outputs and transition conditions are fixed in YAML.
 
-### Ajan Rolleri
+### 2.1 Agent Roles
 
-| Ajan | Görev | Girdi | Çıktı | Model Tipi |
+| Agent | Responsibility | Input | Output | Model Type |
 |---|---|---|---|---|
-| **Orchestrator** | Durum makinesini yönetir, kullanıcıya mesaj üretir | State, Context Packet | Sonraki state, kullanıcı mesajı | Güçlü model (opsiyonel) |
-| **Ingest Agent** | Dokümanı OCR/parse eder, chunk'lar, metadata çıkarır | Yüklenen dosya | Standart JSON chunk'lar | Kural tabanlı + hafif LLM |
-| **Classifier Agent** | MDS-G008 + MDS-G5 kurallarına göre sınıf belirler | Intended use, yasal kurallar | Sınıf + gerekçe + kaynak | Güçlü model |
-| **Evidence Validator** | Kullanıcı evrakını yasal gereksinimle karşılaştırır | Evrak metni, ilgili yasal madde | Uygun / eksik / belirsiz | Orta model |
-| **Checklist Agent** | Sınıfa göre evrak listesi çıkarır | Sınıf | Evrak listesi + kaynak kurum | Kural tabanlı |
-| **Excel Logger** | Tüm adımları yerel Excel'e yazar | Olay verisi | `.xlsx` güncellemesi | Tool call |
-| **Regulatory Watcher** | SFDA sitesini tarar, sürüm kontrolü yapar | URL listesi | Yeni sürüm bildirimi | Hafif model + diff |
+| **Orchestrator** | Manages the state machine, generates user messages | State, Context Packet | Next state, user message | Strong model (optional) |
+| **Ingest Agent** | OCRs/parses documents, chunks them, extracts metadata | Uploaded file | Standardized JSON chunks | Rule-based + lightweight LLM |
+| **Classifier Agent** | Determines risk class per MDS-G008 + MDS-G5 rules | Intended use, regulatory rules | Class + justification + source | Strong model |
+| **Evidence Validator** | Compares user documents against regulatory requirements | Document text, relevant regulatory clause | Compliant / missing / unclear | Mid-tier model |
+| **Checklist Agent** | Produces the required document list for the class | Class | Document list + issuing authority | Rule-based |
+| **Excel Logger** | Writes every step to the local Excel file | Event data | `.xlsx` update | Tool call |
+| **Regulatory Watcher** | Scans the SFDA website, checks for new versions | URL list | New version notification | Lightweight model + diff |
 
-### State Machine
+### 2.2 State Machine
 
 ```
 UPLOAD → INGEST → CLASSIFY → CONFIRM_CLASS → CHECKLIST → COLLECT → VALIDATE → REPORT → DONE
 ```
 
-Her state'in giriş koşulu, çalışacak ajanı, çıkış koşulu ve hata durumu (fallback) vardır.
+Every state has an entry condition, an agent to run, an exit condition and an error (fallback) path.
 
-**Kritik:** LLM'e "hangi ajanı çağırayım?" diye sorulmaz. State machine karar verir.
+**Critical:** The LLM is never asked "which agent should I call?". The state machine decides.
 
-## 3. Sabit Vektör Katmanı ve Retrieval
+## 3. Fixed Vector Layer and Retrieval
 
-### Sabit Şema
+### 3.1 Fixed Schema
 
-| Alan | Değer |
+| Field | Value |
 |---|---|
-| Embedding modeli | `BGE-M3` (çok dilli, 1024 boyut) |
-| Vektör boyutu | 1024 (model değişirse yeniden indeksleme zorunlu) |
-| Normalizasyon | L2 normalize |
-| Chunking | Başlık + madde numarası sınırları; max 512 token, overlap 50 |
-| Koleksiyonlar | `sfda_regulations`, `user_documents`, `templates`, `faq` |
+| Embedding model | `BGE-M3` (multilingual, 1024 dimensions) |
+| Vector dimension | 1024 (changing the model requires full re-indexing) |
+| Normalization | L2 normalize |
+| Chunking | Heading + clause number boundaries; max 512 tokens, overlap 50 |
+| Collections | `sfda_regulations`, `user_documents`, `templates`, `faq` |
 | Metadata | `source_type`, `doc_id`, `section`, `version_date`, `effective_date`, `language` |
-| Retrieval | Hybrid: BM25 + vector, top_k=5, filtre zorunlu |
-| Kaynak gösterimi | Her chunk'ta `source_type` ve `doc_id` taşınır |
+| Retrieval | Hybrid: BM25 + vector, top_k=5, filter required |
+| Source attribution | Every chunk carries `source_type` and `doc_id` |
 
-### Retrieval Kuralları
+### 3.2 Retrieval Rules
 
-- Yasal kural koleksiyonu (`sfda_regulations`) ile kullanıcı dokümanı koleksiyonu (`user_documents`) **asla karışmaz**.
-- Sınıflandırma sırasında yalnızca `source_type = sfda_regulations` filtresiyle arama yapılır.
-- Kullanıcı dokümanı yalnızca kanıt olarak kullanılır, kural kaynağı olamaz.
-- Her çıktı, hangi SFDA dokümanının hangi maddesine dayandığını belirtir.
+- The regulatory rules collection (`sfda_regulations`) and the user documents collection (`user_documents`) **never mix**.
+- During classification, search runs only with the `source_type = sfda_regulations` filter.
+- User documents are used only as evidence; they can never be a source of rules.
+- Every output states which clause of which SFDA document it is based on.
 
-## 4. Büyük Doküman Stratejisi (1024k Token Aşımı)
+## 4. Large Document Strategy (Beyond 1024k Tokens)
 
-Bazı dokümanlar (özellikle teknik dosyalar, klinik değerlendirme raporları) 1024k token'ı aşabilir.
+Some documents (especially technical files and clinical evaluation reports) can exceed 1024k tokens.
 
-### Hiyerarşik Özetleme
+### Hierarchical Summarization
 
-1. **Yapısal Bölme:** Doküman başlıklara, maddelere ve eklerine göre bölünür.
-2. **Bölüm Özeti:** Her bölüm ayrı ayrı özetlenir (map adımı).
-3. **Doküman Haritası:** Özetler bir "doküman haritası" oluşturur (reduce adımı).
-4. **Sorguya Göre Retrieval:** Kullanıcının görevi doğrultusunda ilgili bölümler vektör retrieval ile bulunur.
-5. **Seçici Gönderim:** Yalnızca ilgili bölümler ve özetleri modele gönderilir.
+1. **Structural split:** The document is split by headings, clauses and annexes.
+2. **Section summary:** Each section is summarized separately (map step).
+3. **Document map:** The summaries form a "document map" (reduce step).
+4. **Query-driven retrieval:** Sections relevant to the user's task are found via vector retrieval.
+5. **Selective submission:** Only the relevant sections and their summaries are sent to the model.
 
-### Map-Reduce ve Refine Zincirleri
+### Map-Reduce and Refine Chains
 
-- **Map-Reduce:** Tüm dokümanı parça parça işleyip sonuçları birleştirir.
-- **Refine:** Parça parça işleyip her adımda önceki sonucu iyileştirir.
-- **Sliding Window:** Uzun metinlerde pencere kaydırarak özet çıkarır.
+- **Map-Reduce:** Processes the whole document piece by piece and merges the results.
+- **Refine:** Processes piece by piece, improving the previous result at each step.
+- **Sliding Window:** Summarizes long texts by sliding a window across them.
 
-## 5. Bağlam ve Dikkat Mekanizması
+## 5. Context and Attention Mechanism
 
-Her ajan çağrısında tüm geçmiş gönderilmez. **Context Packet** denilen sabit bir JSON gönderilir:
+The full history is not sent on every agent call. A fixed JSON called the **Context Packet** is sent instead:
 
 ```json
 {
@@ -100,58 +100,67 @@ Her ajan çağrısında tüm geçmiş gönderilmez. **Context Packet** denilen s
 }
 ```
 
-Bu paket, LLM'in dikkatini yalnızca ilgili yasal kurala ve kullanıcı kanıtına yönlendirir. "Lost-in-the-middle" sorunu bu şekilde aşılır.
+This packet focuses the LLM's attention only on the relevant regulatory rule and user evidence. This is how the "lost-in-the-middle" problem is avoided.
 
-## 6. Yerel Excel Kaydı
+## 6. Local Excel Log
 
-Veritabanı yok. Tüm süreç `.xlsx` dosyasında tutulur. 6 sheet: Process, Documents, Classification, Validation, API_Log, Audit
+No database. The entire process is kept in an `.xlsx` file with 6 sheets: Process, Documents, Classification, Validation, API_Log, Audit.
 
-## 7. Web Arayüzü ve Model/API Seçimi
+## 7. Web UI and Model/API Selection
 
-- Süreç Panosu, Sınıflandırma Kartı, Evrak Listesi, Model Seçimi, Excel İndir.
-- Kullanıcı kendi API anahtarını girer; her ajan için model seçebilir.
-- `UnifiedLLMClient` ile OpenAI, Anthropic, Gemini ve yerel API'ler desteklenir.
+### 7.1 Web UI
 
-## 8. Güncel SFDA Mevzuatı
+- Process dashboard, classification card, document checklist, model selection, Excel download.
 
-| Doküman | Açıklama | Sürüm |
+### 7.2 Model/API Selection
+
+- Users enter their own API key and can choose a model per agent.
+- A `UnifiedLLMClient` supports OpenAI, Anthropic, Gemini and local APIs.
+
+## 8. Current SFDA Regulations
+
+### 8.1 Key Documents
+
+| Document | Description | Version |
 |---|---|---|
 | **MDS-G5** | Medical Device Listing and Marketing Authorization | v5.0, 22/06/2020 |
-| **MDS-G008** | Classification Guidance | Sınıflandırma kuralları |
+| **MDS-G008** | Classification Guidance | Classification rules |
 | **MDS-G010** | AI/ML-Enabled Medical Devices | v1.0, 03/01/2023 |
-| **MDS-G27** | Digital Health Products Guidance | Ağustos 2025 |
+| **MDS-G27** | Digital Health Products Guidance | August 2025 |
 | **MDS-REQ9** | Licensing of Medical Devices Establishments | v2, 11/06/2024 |
 | **MDS-REQ5** | Importation and Shipments Clearance | v6.0, 19/07/2023 |
 
-**MDMA Zorunluluğu**: Ocak 2022'den itibaren her tıbbi cihaz için zorunlu.
-**AR Zorunluluğu**: Yabancı üreticiler doğrudan başvuramaz; Suudi ikametgli AR lazım.
-**UDI**: 2025 itibarıyla 460.745 cihaz + 1.782 üretici kayıtlı.
-**Siber Güvenlik**: İki ayrı rehber (sağlayıcılar ve üreticiler için).
+### 8.2 Key Requirements
 
-## 9. Veri Güvenliği ve Güncellik Kontrolü
+- **MDMA requirement**: Mandatory for every medical device since January 2022.
+- **AR requirement**: Foreign manufacturers cannot apply directly; a Saudi-resident Authorized Representative is required.
+- **UDI**: As of 2025, 460,745 devices and 1,782 manufacturers are registered.
+- **Cybersecurity**: Two separate guidance documents (for healthcare providers and for manufacturers).
 
-- Otomatik tarama, sürüm karşılaştırma, kullanıcı bildirimi, sertifika hatırlatma, MDSAP kabulü.
+## 9. Data Security and Currency Checks
 
-## 10. Teknoloji Yığını
+- Automated scanning, version comparison, user notifications, certificate reminders, MDSAP acceptance.
 
-| Bileşen | Öneri |
+## 10. Technology Stack
+
+| Component | Choice |
 |---|---|
-| Ajan orkestrasyonu | LangGraph veya özel Python state machine |
-| Vektör store | ChromaDB persistent / FAISS + SQLite |
-| Embedding | BGE-M3 (sabit) |
-| LLM erişimi | UnifiedLLMClient |
-| Excel | openpyxl veya MCP Excel server |
-| Web | React / Vue / sade HTML+JS |
-| Doküman işleme | `unstructured`, `pypdf`, Tesseract OCR |
-| Özetleme | LangChain `load_summarize_chain` |
+| Agent orchestration | LangGraph or a custom Python state machine |
+| Vector store | ChromaDB persistent / FAISS + SQLite |
+| Embedding | BGE-M3 (fixed) |
+| LLM access | UnifiedLLMClient |
+| Excel | openpyxl or an MCP Excel server |
+| Web | React / Vue / plain HTML+JS |
+| Document processing | `unstructured`, `pypdf`, Tesseract OCR |
+| Summarization | LangChain `load_summarize_chain` |
 
-## 11. Kritik Kurallar (8 madde)
+## 11. Critical Rules
 
-1. LLM ajan seçmez; state machine seçer.
-2. Yasal kural koleksiyonu ile kullanıcı dokümanı koleksiyonu asla karışmaz.
-3. Her çıktı kaynak gösterir; kaynaksız çıktı üretilmez.
-4. Vektör modeli ve boyutu sabittir; değişirse yeniden indeksleme yapılır.
-5. Excel tek gerçek log kaynağıdır; veritabanı yoktur.
-6. Kullanıcı modeli değiştirebilir; ajan rolleri değişmez.
-7. Class C ve D için insan onayı zorunludur.
-8. 1024k token aşan dokümanlar hiyerarşik özetleme + seçici retrieval ile işlenir.
+1. The LLM does not choose agents; the state machine does.
+2. The regulatory rules collection and the user documents collection never mix.
+3. Every output cites its source; no output is produced without a source.
+4. The embedding model and dimension are fixed; changing them requires re-indexing.
+5. Excel is the single source of truth for logs; there is no database.
+6. Users can change the model; agent roles do not change.
+7. Human approval is mandatory for Class C and D.
+8. Documents exceeding 1024k tokens are processed with hierarchical summarization + selective retrieval.

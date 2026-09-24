@@ -1,34 +1,34 @@
-# SFDA AI Kontrol Ajanı — Davranış, Dikkat ve Refinmanlar
+# SFDA AI Compliance Agent — Behavior, Attention and Refinements
 
-> Bu doküman [`PLAN.md`](PLAN.md) planını tamamlar: (1) ajan davranışı/kimliği, (2) dikkat öncelik listesi ve (3) plana 15 kritik refinman.
+> This document complements [`PLAN.md`](PLAN.md) with: (1) agent behavior/identity, (2) an attention priority list, and (3) 15 critical refinements to the plan.
 
 ---
 
-## BÖLÜM A — Plana 15 Kritik Refinman
+## PART A — 15 Critical Refinements to the Plan
 
-Bu maddeler plandaki mimariyi bozmadan, onu daha robust hale getirir.
+These items make the plan's architecture more robust without changing it.
 
-### A1. Sürüm Kilidi (Version Lock) — Kritik
+### A1. Version Lock — Critical
 
-Her karar verildiğinde, o anki SFDA dokümanlarının **sürüm snapshot'ı** kaydedilmeli. Excel'in `Classification` sheet'ine şu kolonlar eklenmeli:
+Whenever a decision is made, a **version snapshot** of the SFDA documents in force at that moment must be recorded. The following columns should be added to the Excel `Classification` sheet:
 
 ```
 mds_g5_version | mds_g008_version | mds_g010_version | mds_g27_version | decision_date
 ```
 
-Eğer 6 ay sonra MDS-G010 v2.0 çıkarsa, **eski kararlar hala v1.0'a dayanıyor olarak görülmeli**. Auditor "Bu karar neye dayanıyor?" diye sorduğunda — v1.0 (3 Ocak 2023, yürürlükte).
+If MDS-G010 v2.0 is published six months later, **earlier decisions must still be shown as based on v1.0**. When an auditor asks "What is this decision based on?", the answer is: v1.0 (3 January 2023, in force at the time).
 
-### A2. Audit Trail Bütünlüğü — Hash Chain
+### A2. Audit Trail Integrity — Hash Chain
 
-Excel dosyası kolayca değiştirilebilir. Auditor değiştirilmediğini kanıtlayamaz. Çözüm:
+An Excel file is easy to modify, and an auditor cannot prove it has not been changed. Solution:
 
-- Her log satırı `prev_hash` ve `this_hash` içerir
+- Every log row contains `prev_hash` and `this_hash`
 - `this_hash = sha256(prev_hash + row_content + timestamp)`
-- İlk satırın `prev_hash = "GENESIS"`
-- Inspector geldiğinde hash chain'i verify eden ayrı bir script çalıştırır
+- The first row has `prev_hash = "GENESIS"`
+- During an inspection, a separate script verifies the hash chain
 
 ```python
-# Audit trail integrity — her satır hash içerir
+# Audit trail integrity — every row carries a hash
 def log_event(event):
     prev_hash = get_last_hash()
     row_content = json.dumps(event, sort_keys=True)
@@ -37,53 +37,53 @@ def log_event(event):
     write_to_excel(event + {"prev_hash": prev_hash, "this_hash": this_hash})
 ```
 
-Bu olmadan, Excel log'u "düzeltilebilir belge" olarak görülür, hukuki geçerliliği zayıf.
+Without this, the Excel log is an "editable document" and its legal weight is limited.
 
-### A3. Hallucination Defense Spesifikasyonu
+### A3. Hallucination Defense Specification
 
-Plan "kaynak gösterimi" diyor ama mekanizmayı detaylandırmadı. Üç katmanlı savunma:
+The plan requires source attribution but does not define the mechanism. Three-layer defense:
 
-| Katman | Ne yapar | Ne engeller |
+| Layer | What it does | What it prevents |
 |---|---|---|
-| **L1 Preamble constraint** | LLM'e "sadece retrieved_rules içindeki rule_id'leri cite et" diye hatırlatır | Casual hallucination |
-| **L2 Tool-based lookup** | LLM, `lookup_rule(rule_id)` tool'unu çağırarak clause text'ini verify etmeden cite edemez | Orta seviye fabrication |
-| **L3 Post-process validator** | LLM'in ürettiği her `rule_id` gerçek retrieved_rules listesinde var mı diye kontrol eder; yoksa finding'i "unverified" işaretiyle düşür | LLM preamble'ı görmezden gelse bile |
+| **L1 Preamble constraint** | Instructs the LLM to "only cite rule_ids present in retrieved_rules" | Casual hallucination |
+| **L2 Tool-based lookup** | The LLM cannot cite a clause without calling the `lookup_rule(rule_id)` tool to verify its text | Mid-level fabrication |
+| **L3 Post-process validator** | Checks that every `rule_id` the LLM produced exists in the actual retrieved_rules list; otherwise the finding is dropped and marked "unverified" | Cases where the LLM ignores the preamble |
 
-v0.1 MVP'de (`src/main.py`) bu savunmanın basitleştirilmiş hali uygulanmıştır; ajan modüllerine aynı yapı taşınacaktır.
+A simplified version of this defense is implemented in the v0.1 MVP (`src/main.py`); the same structure will be carried over to the agent modules.
 
-### A4. Class Değişimi Cascade
+### A4. Class Change Cascade
 
-Eğer kullanıcı sınıflandırmayı değiştirirse (B → C), checklist tamamen değişir. State machine CLASSIFY → CONFIRM_CLASS → CHECKLIST akışında, CONFIRM_CLASS'ta "hayır" yanıtı geldiğinde CLASSIFY'a geri dönmeli.
+If the user changes the classification (B → C), the checklist changes completely. In the CLASSIFY → CONFIRM_CLASS → CHECKLIST flow, a "no" answer at CONFIRM_CLASS must return to CLASSIFY.
 
-**Loop önlemi**: max 1 geri dönüş. İkinci geri dönüşte → MANUAL_REVIEW state'ine düş.
+**Loop guard**: at most 1 return. On the second return → fall back to the MANUAL_REVIEW state.
 
-### A5. UDI DI vs PI ayrımı
+### A5. UDI DI vs PI Distinction
 
-UDI tek başına bir kavram değil — iki segmentten oluşur:
+UDI is not a single concept — it consists of two segments:
 
-- **DI (Device Identifier)**: üretici + ürün kodu. Paket üzerinde olmalı.
-- **PI (Production Identifier)**: lot, seri, üretim tarihi, son kullanma. Ürün üzerinde olmalı.
+- **DI (Device Identifier)**: manufacturer + product code. Must be on the package.
+- **PI (Production Identifier)**: lot, serial number, manufacturing date, expiry date. Must be on the device.
 
-Checklist şu maddeleri içermeli:
-- DI paket etiketinde var mı?
-- PI ürün etiketinde var mı?
-- DI formatı GS1 veya HIBC uyumlu mu?
-- GUDID veritabanına kayıt yapıldı mı?
-- PI için son kullanma tarihi mi, lot mu yoksa ikisi birden mi?
+The checklist should include:
+- Is the DI on the package label?
+- Is the PI on the device label?
+- Is the DI format GS1 or HIBC compliant?
+- Has the device been registered in the GUDID database?
+- Does the PI use expiry date, lot, or both?
 
-### A6. AR Lisansı Doğrulama
+### A6. AR License Verification
 
-Plan AR zorunluluğunu anıyor ama **checklist'te "AR lisansı geçerli mi"** maddesi lazım. SFDA'nın ARL lookup tool'u var: https://www.sfda.gov.sa/en/medical-devices/registered
+The plan mentions the AR requirement, but the checklist needs an **"Is the AR license valid?"** item. SFDA provides an ARL lookup tool: https://www.sfda.gov.sa/en/medical-devices/registered
 
-Agent bu URL'i periyodik tarayıp "Bu AR'ın lisansı süresi dolmuş" uyarısı vermeli.
+The agent should scan this URL periodically and warn "This AR's license has expired".
 
-### A7. Arabic IFU Translation Verification Mekaniği
+### A7. Arabic IFU Translation Verification Mechanics
 
-Dil gereksinimlerini anıyor ama şu mekanik kontroller lazım:
+The language requirements are mentioned, but the following mechanical checks are needed:
 
-1. **RTL detection**: Arabic IFU gerçekten right-to-left mi (charakter-range check)
-2. **Tıbbi terminoloji uygunluğu**: certified Arabic medical translator kullanıldı mı (belge iste)
-3. **English ile cross-consistency**: aynı prosedür hem EN hem AR'de tarif ediliyor mu
+1. **RTL detection**: Is the Arabic IFU actually right-to-left (character-range check)?
+2. **Medical terminology suitability**: Was a certified Arabic medical translator used (request proof)?
+3. **Cross-consistency with English**: Is the same procedure described in both EN and AR?
 
 ```python
 def verify_arabic_ifu(ar_text, en_text):
@@ -97,80 +97,80 @@ def verify_arabic_ifu(ar_text, en_text):
     return cross_validate_sections(ar_text, en_text)
 ```
 
-### A8. Pre-submission Meeting Önerisi
+### A8. Pre-submission Meeting Recommendation
 
-Class C/D cihazlar için SFDA pre-submission meeting önerir. Checklist'e şu madde eklenmeli:
+SFDA recommends a pre-submission meeting for Class C/D devices. The checklist should include:
 
-> "Class C/D cihazlar için SFDA pre-submission meeting önerilir. Talep için sfda.gov.sa üzerinden form doldurun. Ortalama cevap süresi: 4-6 hafta."
+> "A pre-submission meeting with SFDA is recommended for Class C/D devices. Submit the request form via sfda.gov.sa. Average response time: 4-6 weeks."
 
-Agent bunu otomatik olarak bir "önerilen aksiyon" olarak işaretlemeli — kritik değil ama yüksek değerli.
+The agent should automatically flag this as a "recommended action" — not critical, but high value.
 
-### A9. CER (Clinical Evaluation Report) Sınıf Bazlı Derinlik
+### A9. CER (Clinical Evaluation Report) Depth by Class
 
-Plan "CER lazım" diyor ama derinlik class'a göre değişir:
+The plan says "a CER is required", but the required depth varies by class:
 
-| Class | CER derinliği | Min gereksinim |
+| Class | CER depth | Minimum requirement |
 |---|---|---|
-| **A** | Genelde gerekmez | (yalnızca literature review yeterli) |
+| **A** | Usually not required | (literature review only is sufficient) |
 | **B** | Equivalence justification | Predicate device + literature review |
-| **C** | Klinik veri + literature | MEDDEV 2.7/1 rev.4 metodolojisi |
-| **D** | Klinik deney + PMCF | Tam CER + PMCF plan |
+| **C** | Clinical data + literature | MEDDEV 2.7/1 rev.4 methodology |
+| **D** | Clinical investigation + PMCF | Full CER + PMCF plan |
 
-Classifier bunu ayırt etmeli.
+The Classifier must distinguish between these.
 
-### A10. PSUR (Periodic Safety Update Report) Sıklığı
+### A10. PSUR (Periodic Safety Update Report) Frequency
 
-| Class | Sıklık |
+| Class | Frequency |
 |---|---|
-| **A** | Yıllık |
-| **B** | İlk 2 yıl yıllık, sonra 2 yılda bir |
-| **C** | İlk 2 yıl yıllık, sonra 2 yılda bir |
-| **D** | Yıllık |
+| **A** | Annual |
+| **B** | Annual for the first 2 years, then every 2 years |
+| **C** | Annual for the first 2 years, then every 2 years |
+| **D** | Annual |
 
-Checklist'te "PSUR planı var mı" maddesi class'a göre farklı soru sormalı.
+The checklist's "Is there a PSUR plan?" item should ask different questions depending on class.
 
-### A11. Risk Management File Derinliği (ISO 14971:2019)
+### A11. Risk Management File Depth (ISO 14971:2019)
 
-Tüm sınıflar için zorunlu ama derinlik farklı:
+Mandatory for all classes, but depth differs:
 
 - **Class A**: Basic hazard analysis
 - **Class B**: Full risk management file + residual risk assessment
 - **Class C/D**: Full RMF + benefit-risk analysis + post-production information
 
-### A12. Cybersecurity Documentation Class Bazlı
+### A12. Cybersecurity Documentation by Class
 
-Plan cybersecurity'ı anıyor ama derinlik class'a göre:
+The plan mentions cybersecurity, but depth depends on class:
 
-| Class | Cyber gereksinim |
+| Class | Cybersecurity requirement |
 |---|---|
-| **A** (non-connected) | Genelde yok |
+| **A** (non-connected) | Usually none |
 | **B** (connected) | IEC 81001-5-1 self-attestation |
 | **C** (connected) | Threat model + SBOM + IEC 81001-5-1 |
 | **D** (connected) | Full penetration test report + SBOM + threat model + IEC 81001-5-1 |
 
 ### A13. Change Notification (Post-Market)
 
-MDMA alındıktan sonra cihaz değişirse SFDA'ya "change notification" gerekiyor. Agent post-market phase'i de takip etmeli — yalnızca pre-submission değil.
+If a device changes after MDMA is granted, a "change notification" to SFDA is required. The agent should track the post-market phase as well — not only pre-submission.
 
 Change types:
-- **Notable change** (yeni risk) → SFDA onayı gerekir
-- **Non-notable change** (form değişikliği) → only notification
-- **Administrative change** (firma adı) → log only
+- **Notable change** (new risk) → requires SFDA approval
+- **Non-notable change** (form change) → notification only
+- **Administrative change** (company name) → log only
 
 ### A14. Post-Market Vigilance Reporting Timelines
 
 | Event | Timeline | Recipient |
 |---|---|---|
-| Adverse event (death/serious injury) | 10 gün | SFDA |
-| Field Safety Corrective Action (FSCA) | 5 gün | SFDA |
+| Adverse event (death/serious injury) | 10 days | SFDA |
+| Field Safety Corrective Action (FSCA) | 5 days | SFDA |
 | Trend report | Quarterly (Class C/D) | SFDA |
-| PSUR | Class'a göre (A10) | SFDA |
+| PSUR | By class (A10) | SFDA |
 
-Agent hatırlatma alarmları kurmalı.
+The agent should set up reminder alerts.
 
 ### A15. Multi-Jurisdiction Flag
 
-Cihaz Saudi + UAE + Türkiye'ye gidiyorsa, her jurisdiction için **ayrı checklist**. Plan şu an Saudi-odaklı ama agent "multi-jurisdiction mode" desteklemeli.
+If a device is going to Saudi Arabia + UAE + Turkey, each jurisdiction needs a **separate checklist**. The plan is currently Saudi-focused, but the agent should support a "multi-jurisdiction mode".
 
 ```python
 class Jurisdiction(Enum):
@@ -181,45 +181,45 @@ class Jurisdiction(Enum):
 # Cross-jurisdiction flag
 if submission.jurisdictions_count > 1:
     checklist = build_unified_checklist(submission.jurisdictions)
-    # → her madde için "common" vs "specific" işareti
+    # → mark each item as "common" vs "specific"
 ```
 
 ---
 
-## BÖLÜM B — Ajan Davranışı ve Kimliği
+## PART B — Agent Behavior and Identity
 
-> Ajan bir fonksiyon değil; bir karakter. Auditörün raporu okurken "bu ajan dikkatli, tutarlı ve güvenilir" demesi lazım.
+> The agent is not just a function; it has a character. An auditor reading its report should conclude that "this agent is careful, consistent and reliable".
 
-### B1. Kişilik (Persona)
+### B1. Persona
 
-Ajan **"Mukim bir regülatuvar asistanı"** olmalı:
+The agent should act as a **"resident regulatory assistant"**:
 
-- **Tutarlı**: Aynı girdi → aynı çıktı (temperature=0)
-- **Süssüz**: "Süper", "harika", "mükemmel" gibi kelimeler yok. Sadece bulgu + kaynak + öneri.
-- **Kısa**: Bir bulgu = 2 cümle max. Uzun açıklama = auditor yorar.
-- **Sayısal**: "Eksik" yerine "3 madde eksik (SFDA-MDS-G008-R5.2, R5.3, R5.7)" gibi.
-- **Kaynaklı**: Her bulgu `rule_id` + `doc_id` + `page` ile.
+- **Consistent**: Same input → same output (temperature=0)
+- **Unembellished**: No words like "great", "excellent", "perfect". Only finding + source + recommendation.
+- **Concise**: One finding = max 2 sentences. Long explanations tire auditors.
+- **Quantitative**: Instead of "missing", say "3 items missing (SFDA-MDS-G008-R5.2, R5.3, R5.7)".
+- **Sourced**: Every finding carries `rule_id` + `doc_id` + `page`.
 
-### B2. Davranış Kuralları (Behavior Rules)
+### B2. Behavior Rules
 
-| # | Kural | Neden |
+| # | Rule | Rationale |
 |---|---|---|
-| 1 | **"Bilmiyorum" demeyi bilmeli** | Borderline durumda "karar verilemiyor — insan review" demek, yanlış karardan iyi |
-| 2 | **Conservative by design** | Borderline class B/C'de C'ye çek. SFDA safety-first ile uyumlu |
-| 3 | **Pre-check citation** | LLM returnden ettiği `rule_id` gerçekten retrieved_rules içinde var mı diye verify etmeden output verme |
-| 4 | **Time-aware** | Karar tarihine göre değerlendir (ör. 2026-09-24 itibarıyla: MDS-G27 (Aug 2025) → etkili. MDS-G010 v2 çıkmadı → v1.0 hala geçerli). Yeni sürüm geldi → "eski kararları gözden geçir" uyarısı |
-| 5 | **Disclaimer mandatory** | Her output'ta "Bu agent resmi SFDA tavsiyesi değildir; resmi onay için SFDA'ya başvurun" yazmalı |
-| 6 | **Audit-ready** | Her karar "Bu neye dayanıyor?" sorusuna yanıt verebilmeli (hash chain + version snapshot) |
-| 7 | **Reverse-check translation** | Arabic + English dokümanlar aynı bulguyu üretmeli. Tutarlılık testi |
-| 8 | **Lexical vs semantic distinction** | "ISO 13485" → exact match (lexical). "Klinik değerlendirme" → semantic. İkisini karıştırma |
-| 9 | **No silent fallback** | Bir agent fail ederse, kullanıcıya göster: "Classifier agent LLM error — falling back to MANUAL_REVIEW" |
-| 10 | **One finding = one source** | Bir bulgu, bir kural kaynağına dayanmalı. "İki kurala dayanıyor" = iki ayrı bulgu olmalı |
+| 1 | **Know when to say "I don't know"** | In borderline cases, "cannot decide — human review" is better than a wrong decision |
+| 2 | **Conservative by design** | For borderline B/C, choose C. Aligned with SFDA's safety-first approach |
+| 3 | **Pre-check citations** | Do not return output without verifying that every returned `rule_id` actually exists in retrieved_rules |
+| 4 | **Time-aware** | Evaluate against the decision date (e.g. as of 2026-09-24: MDS-G27 (Aug 2025) → in effect; MDS-G010 v2 not published → v1.0 still valid). When a new version is released → "review earlier decisions" warning |
+| 5 | **Mandatory disclaimer** | Every output must state: "This agent does not provide official SFDA advice; consult SFDA for official approval" |
+| 6 | **Audit-ready** | Every decision must be able to answer "What is this based on?" (hash chain + version snapshot) |
+| 7 | **Reverse-check translation** | Arabic and English documents must yield the same findings. Consistency test |
+| 8 | **Lexical vs semantic distinction** | "ISO 13485" → exact match (lexical). "Clinical evaluation" → semantic. Never mix the two |
+| 9 | **No silent fallback** | If an agent fails, show the user: "Classifier agent LLM error — falling back to MANUAL_REVIEW" |
+| 10 | **One finding = one source** | A finding must rest on a single rule source. "Based on two rules" = two separate findings |
 
-### B3. İletişim Şablonları
+### B3. Communication Templates
 
-Ajan kullanıcıya şu şekilde konuşmalı:
+The agent should communicate with the user as follows:
 
-**Sınıflandırma sonrası (CONFIRM_CLASS):**
+**After classification (CONFIRM_CLASS):**
 ```
 [Classification Result]
 Device: Canon VITRAE MRI System (1.5T)
@@ -234,7 +234,7 @@ parameters where the nature of variations could result in immediate danger."
 Confirm class? [Yes / No (re-classify) / Manual review]
 ```
 
-**Validation sonrası (REPORT):**
+**After validation (REPORT):**
 ```
 [Validation Findings — Class C submission]
 
@@ -261,145 +261,145 @@ Audit hash: 7f3a9b...e4c2 (chain verification OK)
 Version snapshot: MDS-G5 v5.0 / MDS-G008 (current) / MDS-G27 Aug 2025
 ```
 
-### B4. Sessiz Durumlar (Silent failure modes — kaçınılacak)
+### B4. Silent Failure Modes (to avoid)
 
-Ajanın düşmemesi gereken davranışlar:
+Behaviors the agent must never fall into:
 
-| Kötü davranış | Neden kötü | Doğru davranış |
+| Bad behavior | Why it is bad | Correct behavior |
 |---|---|---|
-| "Bulgu yok" yazıp geçmek | Belki de yanılmıştır | "Retrieved kurallarda eksiklik saptanmadı; ancak bu, compliancy anlamına gelmez. İnsan review önerilir" |
-| Birden fazla bulguyu tek satırda yazmak | Auditor trace zor | Her bulgu ayrı satır, ayrı kaynak |
-| Source vermeden tavsiye vermek | Auditör verify edemez | "Pre-submission meeting önerilir (kaynak: SFDA MDMA Process Overview, step 3)" |
-| Belirsizlikte tahmin etmek | Yanlış class = 6 ay gecikme | "Bu cihaz sınıflandırması belirsiz — MDS-G008 §13 ile §14 arasında. İnsan review'a gönderildi" |
-| Türkçe response vermek | Auditing İngilizce olacak | Tüm output İngilizce (auditörler genelde İngilizce okur) |
-| Geçmiş bulguyu sessizce overwrite etmek | Hukuki olarak riskli | Yeni bulgu + "Previous finding #X superseded" işareti |
+| Writing "no findings" and moving on | It may simply be wrong | "No gaps detected against the retrieved rules; this does not imply compliance. Human review recommended" |
+| Writing multiple findings on a single line | Hard for auditors to trace | Each finding on its own line, with its own source |
+| Giving recommendations without a source | Auditors cannot verify them | "Pre-submission meeting recommended (source: SFDA MDMA Process Overview, step 3)" |
+| Guessing under uncertainty | Wrong class = 6-month delay | "Classification of this device is ambiguous — between MDS-G008 §13 and §14. Sent to human review" |
+| Responding in a language other than English | Audits are conducted in English | All output in English (auditors generally read English) |
+| Silently overwriting a previous finding | Legally risky | New finding + "Previous finding #X superseded" marker |
 
-### B5. Versiyon Yönetimi Davranışı
+### B5. Version Management Behavior
 
-SFDA dokümanları zamanla değişir. Agent'ın zamanla nasıl davranacağı:
+SFDA documents change over time. How the agent behaves as they do:
 
 ```
 T0 (2026-09-24): MDS-G010 v1.0 (current)
-T1 (2027-03-01): MDS-G010 v2.0 yayınlandı
-T2 (2027-03-02): Agent tetiklenir →
-  "Yeni MDS-G010 sürümü tespit edildi (v2.0, 1 Mart 2027). 
-   Önceki kararlardan 47 tanesi MDS-G010 v1.0'a dayanıyor.
-   [ ] Kararları v2.0 ile re-validate et
-   [ ] Sadece etkilenen kararları göster
-   [ ] Daha sonra hatırlat"
+T1 (2027-03-01): MDS-G010 v2.0 published
+T2 (2027-03-02): Agent is triggered →
+  "New MDS-G010 version detected (v2.0, 1 March 2027).
+   47 earlier decisions are based on MDS-G010 v1.0.
+   [ ] Re-validate decisions against v2.0
+   [ ] Show only affected decisions
+   [ ] Remind me later"
 ```
 
 ---
 
-## BÖLÜM C — Dikkat Öncelik Listesi (Attention Priority)
+## PART C — Attention Priority List
 
-> Ajan'ın neye dikkat edeceği — öncelik sırasıyla. Bu liste state machine'in her state'inde agent'ın prompt'una hangi maddelerin inject edileceğini belirler.
+> What the agent must pay attention to, in priority order. This list determines which items are injected into the agent's prompt at each state of the state machine.
 
-### C1. P0 — Kritik (yanlış karar = submission rejection + 6 ay gecikme)
+### C1. P0 — Critical (wrong decision = submission rejection + 6-month delay)
 
-1. **Class C/D tespiti** — her cihaz için doğru risk class belirlenmeli. MDS-G008 + intended use + technology combination
-2. **AR lisansı geçerliliği** — süresi dolmuş AR = otomatik reject. SFDA ARL lookup tool ile verify
-3. **MDMA zorunluluğu** — CE/FDA onayı olsa bile MDMA şart. Ocak 2022'den beri
-4. **UDI DI + PI formatı** — GUDID uyumlu, doğru segment etiketleri
-5. **IFU Arabic + English** — yalnızca İngilizce = reject. RTL + certified translator
-6. **Clinical Evaluation Report varlığı** — Class C/D için zorunlu (MEDDEV 2.7/1 rev.4)
-7. **Risk Management File** — ISO 14971:2019, tüm sınıflar için (derinlik class'a göre)
-8. **QMS sertifikası** — ISO 13485:2016 (MDSAP tercihen)
-9. **Cybersecurity documentation** — connected cihazlar için (IEC 81001-5-1 + SBOM + threat model)
-10. **Saudi-specific labeling** — Arabic + English + Suudi FDA logo/format gereksinimleri
+1. **Class C/D detection** — the correct risk class must be determined for every device. MDS-G008 + intended use + technology combination
+2. **AR license validity** — an expired AR = automatic rejection. Verify with the SFDA ARL lookup tool
+3. **MDMA requirement** — MDMA is required even with CE/FDA approval. Since January 2022
+4. **UDI DI + PI format** — GUDID compliant, correct segment labels
+5. **IFU in Arabic + English** — English only = rejection. RTL + certified translator
+6. **Clinical Evaluation Report present** — mandatory for Class C/D (MEDDEV 2.7/1 rev.4)
+7. **Risk Management File** — ISO 14971:2019, all classes (depth by class)
+8. **QMS certificate** — ISO 13485:2016 (MDSAP preferred)
+9. **Cybersecurity documentation** — for connected devices (IEC 81001-5-1 + SBOM + threat model)
+10. **Saudi-specific labeling** — Arabic + English + Saudi FDA logo/format requirements
 
-### C2. P1 — Yüksek (yanlış karar = 1-2 ay gecikme)
+### C2. P1 — High (wrong decision = 1-2 month delay)
 
-11. **AR notarization + apostille** — yabancı ülkede legalization eksikse
-12. **TFA (Technical File Assessment) derinliği** — class'a göre (B = self-declaration, C = review, D = clinical)
-13. **Conformity assessment route** — Annex II vs Annex III seçimi doğru mu
-14. **IFU Arabic translation quality** — machine translation değil, certified Arabic medical translator
-15. **SBOM completeness** — tüm bağımlılıklar (deps + transitive deps) listeli mi
-16. **Threat model coverage** — STRIDE veya PASTA metodolojisi kullanıldı mı
-17. **Penetration test report** — Class D connected cihazlar için
-18. **Pre-submission meeting önerisi** — Class C/D cihazlar için SFDA önerir
+11. **AR notarization + apostille** — missing legalization in the foreign country
+12. **TFA (Technical File Assessment) depth** — by class (B = self-declaration, C = review, D = clinical)
+13. **Conformity assessment route** — is the Annex II vs Annex III choice correct?
+14. **IFU Arabic translation quality** — certified Arabic medical translator, not machine translation
+15. **SBOM completeness** — are all dependencies (direct + transitive) listed?
+16. **Threat model coverage** — was the STRIDE or PASTA methodology used?
+17. **Penetration test report** — for Class D connected devices
+18. **Pre-submission meeting recommendation** — recommended by SFDA for Class C/D devices
 
-### C3. P2 — Orta (yanlış karar = iteratif düzeltme)
+### C3. P2 — Medium (wrong decision = iterative correction)
 
-19. **Post-market surveillance plan formatı** (PMSP) — class'a göre sıklık
-20. **Periodic Safety Update Report** sıklığı — Class A yıllık, C/D yıllık, B 2 yılda
-21. **Vigilance reporting timeline** — adverse event 10 gün, FSCA 5 gün
+19. **Post-market surveillance plan format** (PMSP) — frequency by class
+20. **Periodic Safety Update Report** frequency — see A10
+21. **Vigilance reporting timeline** — adverse event 10 days, FSCA 5 days
 22. **Clinical literature search strategy** — MEDDEV 2.7/1 rev.4 reproducible search
 23. **Equivalence justification rigor** — predicate device + biological/technical/clinical equivalence
 24. **Software documentation level** — IEC 62304 class A/B/C
 25. **Usability engineering file** — IEC 62366-1
 
-### C4. P3 — Düşük (iyileştirme)
+### C4. P3 — Low (improvement)
 
-26. **Best practice tip'leri** — çalışma grupları, kongreler, ICF benchmarking
-27. **Glossary access** — terim açıklamaları
-28. **Cross-reference validation** — internal doc tutarlılığı
-29. **Document formatting checks** — sayfa numarası, header/footer, font
+26. **Best practice tips** — working groups, conferences, ICF benchmarking
+27. **Glossary access** — term definitions
+28. **Cross-reference validation** — internal document consistency
+29. **Document formatting checks** — page numbers, header/footer, font
 30. **Translation quality alerts** — terminology consistency flag
 
-### C5. Hangi state hangi P seviyesini dikkate almalı?
+### C5. Which priority levels apply at each state?
 
-| State | Dikkat seviyesi |
+| State | Attention level |
 |---|---|
 | INGEST | P3 (formatting) + P1 (translation quality) |
 | CLASSIFY | P0 (#1 class detection) |
-| CONFIRM_CLASS | P0 (#1) — human review'a yönelt |
+| CONFIRM_CLASS | P0 (#1) — route to human review |
 | CHECKLIST | P0 (1-10) + P1 (11-18) |
-| COLLECT | P1 (12-18) — eksik evrak tespiti |
+| COLLECT | P1 (12-18) — missing document detection |
 | VALIDATE | P0 (4-10) + P1 (11-18) + P2 (19-25) |
-| REPORT | Tüm seviyeler — auditor-ready çıktı |
+| REPORT | All levels — auditor-ready output |
 | (Post-market) | P2 (19-21) — vigilance + PSUR + change notification |
 
 ---
 
-## BÖLÜM D — Uygulama Fazları (Implementation Phases)
+## PART D — Implementation Phases
 
-### D1. MVP (v0.1) — 2 hafta — "Pre-check Class B"
+### D1. MVP (v0.1) — 2 weeks — "Pre-check Class B"
 **Scope:**
-- 4 agent: Orchestrator, Ingest, Classifier, Checklist (Evidence Validator + Regulatory Watcher yok)
+- 4 agents: Orchestrator, Ingest, Classifier, Checklist (no Evidence Validator or Regulatory Watcher)
 - 1 jurisdiction (Saudi SFDA)
-- 3 doc type: IFU, Technical File, Risk Management File
-- ChromaDB (Excel değil — henüz yok)
-- CLI only (web yok)
-- Output: Class detection (MDS-G008) + class-bazlı checklist
-- P0 maddelerinin 5'i kontrol edilir (#1, #2, #5, #6, #7)
+- 3 document types: IFU, Technical File, Risk Management File
+- ChromaDB (no Excel yet)
+- CLI only (no web UI)
+- Output: class detection (MDS-G008) + class-specific checklist
+- 5 of the P0 items are checked (#1, #2, #5, #6, #7)
 
-### D2. v0.2 — +2 hafta — "Validation + Excel Log"
-- Evidence Validator agent (gerçek clause-level validation)
+### D2. v0.2 — +2 weeks — "Validation + Excel Log"
+- Evidence Validator agent (real clause-level validation)
 - Excel logger (openpyxl + hash chain)
-- Web arayüzü (Streamlit — hızlı)
-- 5 doc type (yukarıdakiler + QMS certificate + AR letter)
-- 2 jurisdiction (Saudi + UAE MoHAP — A15 multi-jurisdiction flag)
-- P0 (1-10) tam kontrol
+- Web UI (Streamlit — fast to build)
+- 5 document types (the above + QMS certificate + AR letter)
+- 2 jurisdictions (Saudi + UAE MoHAP — A15 multi-jurisdiction flag)
+- Full P0 (1-10) checks
 
-### D3. v0.3 — +2 hafta — "Regulatory Watcher + Audit Hardening"
-- Regulatory Watcher (SFDA sitesi tarama + RSS)
+### D3. v0.3 — +2 weeks — "Regulatory Watcher + Audit Hardening"
+- Regulatory Watcher (SFDA website scanning + RSS)
 - Version lock + snapshot (A1)
 - Audit hash chain (A2)
-- Pre-submission meeting önerisi (A8)
+- Pre-submission meeting recommendation (A8)
 - Periodic safety update reminders (A14)
-- P1 (11-18) kontrol
+- P1 (11-18) checks
 
-### D4. v1.0 — +4 hafta — "Production"
+### D4. v1.0 — +4 weeks — "Production"
 - Multi-jurisdiction cross-validation (Saudi + UAE + Turkey)
 - Arabic NLP pipeline (CAMeL Tools — RTL detection, terminology)
-- LangGraph migration (special state machine → LangGraph)
-- Production hardening: auth, rate limit, monitoring, error recovery
-- P2 (19-25) + P3 (26-30) kontrol
+- LangGraph migration (custom state machine → LangGraph)
+- Production hardening: auth, rate limiting, monitoring, error recovery
+- P2 (19-25) + P3 (26-30) checks
 
 ---
 
-## BÖLÜM E — Sonraki Adım: UAE MoHAP
+## PART E — Next Step: UAE MoHAP
 
-Saudi planı bu dokümanla tamamlanmıştır. Sonraki adım, aynı yapının **UAE MoHAP** için hazırlanmasıdır. Temel farklar:
+This document completes the Saudi plan. The next step is to prepare the same structure for **UAE MoHAP**. Key differences:
 
-  - Yasa: Federal Law No. 8 of 2023 (Medical Devices)
-  - Regulatory body: MoHAP (Saudi'de SFDA)
-  - MDMA eşdeğeri: MoHAP Device Registration Certificate
-  - AR: Local Authorized Representative (LAR) — UAE-ikametli
-  - Cybersecurity: Article 2.4'te zorunlu (IEC 81001-5-1 + SBOM + threat model + PMCP)
+  - Law: Federal Law No. 8 of 2023 (Medical Devices)
+  - Regulatory body: MoHAP (SFDA in Saudi Arabia)
+  - MDMA equivalent: MoHAP Device Registration Certificate
+  - AR: Local Authorized Representative (LAR) — UAE-resident
+  - Cybersecurity: mandatory under Article 2.4 (IEC 81001-5-1 + SBOM + threat model + PMCP)
   - Data protection: UAE PDPL (Federal Decree-Law No. 45 of 2021)
-  - Vigilance timeline: FSCA 10 gün (Saudi'de 5)
-  - PSUR: Class IIa 2 yılda, IIb/III yıllık
+  - Vigilance timeline: FSCA 10 days (5 days in Saudi Arabia)
+  - PSUR: Class IIa every 2 years, IIb/III annually
 
-UAE planı da aynı "ajan davranışı + dikkat listesi + refinmanlar" yapısıyla hazırlandıktan sonra iki plan **ortak çekirdek** + **jurisdiction-spesifik modüller** olarak ayrılacaktır (A15 multi-jurisdiction flag'in temeli).
+Once the UAE plan is prepared with the same "agent behavior + attention list + refinements" structure, the two plans will be split into a **shared core** + **jurisdiction-specific modules** (the foundation of the A15 multi-jurisdiction flag).
