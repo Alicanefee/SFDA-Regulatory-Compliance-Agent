@@ -7,7 +7,7 @@
 [![Status: v0.1.0 MVP](https://img.shields.io/badge/status-v0.1.0%20MVP-orange.svg)](docs/roadmap.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> ⚠️ **For demonstration and testing purposes only.** The regulatory corpus is synthetic and the sample submission is fictional. The output is not legal or regulatory advice and not a regulatory clearance. **All legal and regulatory obligations arising from use of this software remain solely with the user.** See [DISCLAIMER.md](DISCLAIMER.md).
+> ⚠️ **For demonstration and testing purposes only.** The regulatory corpus is synthetic and the sample submission is fictional. The output is not legal or regulatory advice and not a regulatory clearance. **All legal and regulatory obligations arising from use of this software remain solely with the user.** Read the full [Legal Disclaimer and Terms of Use](DISCLAIMER.md) before use.
 
 **Author**: Ali Can Efe
 
