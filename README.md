@@ -162,4 +162,4 @@ Full terms: [DISCLAIMER.md](DISCLAIMER.md).
 
 ## 👤 Author
 
-**Ali Can Efe** — biomedical engineer with 10 years in medical imaging (MRI product management, META region; regulatory and compliance work for AI-enabled imaging). Based in Dubai, UAE.
+**Ali Can Efe** — Medical device industry expert and advisor with 13 years across product management, regulatory compliance and AI-enabled imaging in the Middle East, Turkey & Africa (META). Based in Dubai, UAE.
