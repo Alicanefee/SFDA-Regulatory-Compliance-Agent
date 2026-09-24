@@ -162,4 +162,4 @@ Full terms: [DISCLAIMER.md](DISCLAIMER.md).
 
 ## 👤 Author
 
-**Ali Can Efe** — Medical device industry expert and advisor with 13 years of experience across different departments: product management, regulatory compliance and AI-enabled imaging, with global expertise including the Middle East, Turkey & Africa (META).
+**Ali Can Efe** — Medical device industry expert and advisor with 13 years of experience across different departments: product management, regulatory compliance and AI-enabled imaging, with global expertise.
