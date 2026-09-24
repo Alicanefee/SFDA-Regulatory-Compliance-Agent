@@ -1,6 +1,6 @@
 """
-00-flagship/regulatory-precheck-agent/main.py
-=====================================
+SFDA Regulatory Compliance Agent — v0.1 MVP entry point
+=======================================================
 
 Regulatory Documentation Pre-Check Agent
 ---------------------------------------
@@ -23,9 +23,9 @@ Architecture:
   5. Output a structured findings report (JSON + human-readable markdown)
 
 Usage:
-    python main.py --submission sample_submission/sample_package.json
-    python main.py --submission sample_submission/sample_package.json --format json
-    python main.py --submission sample_submission/sample_package.json --verbose
+    python main.py --submission ../data/sample_submission/sample_package.json
+    python main.py --submission ../data/sample_submission/sample_package.json --format json
+    python main.py --submission ../data/sample_submission/sample_package.json --verbose
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ from rich.table import Table
 load_dotenv()
 
 ROOT = Path(__file__).parent
-CORPUS_DIR = ROOT / "regulatory_corpus"
+CORPUS_DIR = ROOT.parent / "data" / "regulatory_corpus"
 SUBMISSIONS_DIR = ROOT / "sample_submission"
 
 console = Console()

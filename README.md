@@ -7,7 +7,6 @@
 [![Status: v0.1.0 MVP](https://img.shields.io/badge/status-v0.1.0%20MVP-orange.svg)](docs/roadmap.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Repository**: github.com/Alicanefee/SFDA-Regulatory-Compliance-Agent
 **Author**: Ali Can Efe — Dubai, UAE · `ali_canefe@hotmail.com`
 
 ---
@@ -38,7 +37,7 @@ A deterministic AI agent that scans medical-device submission packages against t
 
 📖 **Architecture**: [`docs/architecture.md`](docs/architecture.md) (defense layers, failure modes, production upgrade path)
 
-📖 **Roadmap**: [`docs/roadmap.md`](docs/roadmap.md) (v0.1 MVP → v1.0 production, honest scoping)
+📖 **Roadmap**: [`docs/roadmap.md`](docs/roadmap.md) (v0.1 MVP → v1.0 production)
 
 ## 🤖 7 Agent Roles
 
@@ -79,11 +78,11 @@ Expected output on the sample submission (Canon VITRAE MRI → UAE MoHAP):
 - 🟡 Warning: PMS System documentation missing
 - 🟡 Warning: Data protection compliance statement missing
 
-## 📊 Current state (honest)
+## 📊 Current state
 
 - **Status**: v0.1 MVP — single-jurisdiction pre-check, basic RAG + tool use
 - **What works**: Cohere Command R+ with RAG + tool use + grounded citation defense (3-layer hallucination prevention)
-- **What's stubbed**: 6 of the 7 agent roles (only the validation flow is implemented), state machine YAML, Excel hash chain, Regulatory Watcher
+- **What's stubbed**: all 7 agent modules in `src/agents/` (the MVP validation flow lives in `src/main.py`), state machine dispatcher, Excel hash chain, Regulatory Watcher
 - **What's missing**: Arabic NLP pipeline, multi-jurisdiction support, web UI, audit hardening
 
 See [`docs/roadmap.md`](docs/roadmap.md) for full v0.1 → v1.0 plan.
@@ -99,10 +98,10 @@ SFDA-Regulatory-Compliance-Agent/
 ├── .gitignore
 │
 ├── docs/
-│   ├── PLAN.md                        ← User-authored nihai plan
-│   ├── BEHAVIOR_AND_ATTENTION.md     ← Refinman + davranış + dikkat listesi
+│   ├── PLAN.md                        ← Project plan (architecture, agents, SFDA regulations)
+│   ├── BEHAVIOR_AND_ATTENTION.md     ← Refinements, behavior rules, attention priorities
 │   ├── architecture.md                ← Detailed architecture
-│   └── roadmap.md                     ← v0.1 → v1.0 honest roadmap
+│   └── roadmap.md                     ← v0.1 → v1.0 roadmap
 │
 ├── src/
 │   ├── main.py                        ← v0.1 MVP entry point (Cohere agent)
@@ -152,8 +151,6 @@ SFDA-Regulatory-Compliance-Agent/
 - For actual regulatory compliance work, always consult official SFDA sources and a licensed regulatory affairs professional
 - This agent does NOT provide legal advice
 
-## 📋 Background context
+## 👤 Author
 
-This project is being built by Ali Can Efe — biomedical engineer + 10 years at Canon Medical Systems (MRI product management, META region, regulatory & compliance work for AI-enabled imaging portfolio). Currently based in Dubai, transitioning to enterprise AI Customer Success.
-
-See the sister repository [`ali-can-efe-portfolio`](https://github.com/Alicanefee/ali-can-efe-portfolio) for the broader GenAI portfolio this project originated from.
+**Ali Can Efe** — biomedical engineer with 10 years at Canon Medical Systems (MRI product management, META region; regulatory and compliance work for an AI-enabled imaging portfolio). Based in Dubai, UAE.

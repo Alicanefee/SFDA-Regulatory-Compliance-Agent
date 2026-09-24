@@ -1,6 +1,6 @@
 # Roadmap — SFDA Regulatory Compliance Agent
 
-> Honest roadmap. Updated as the project evolves.
+> Updated as the project evolves.
 
 ## Current state (v0.1 MVP — September 2026)
 
@@ -12,7 +12,7 @@
 - ✅ CLI output (table / JSON / markdown)
 - ✅ All planning docs (PLAN.md, BEHAVIOR_AND_ATTENTION.md, architecture.md)
 
-### What's honest
+### Known limitations
 - Single-step flow (no state machine yet)
 - Single jurisdiction (UAE MoHAP in MVP — Saudi SFDA will be first real target)
 - In-memory cosine (no ChromaDB persistent)
@@ -55,7 +55,7 @@
 - [ ] Hash chain audit validator (`src/utils/audit.py`)
 - [ ] Pre-submission meeting recommendation (Class C/D)
 - [ ] Periodic safety update reminders (PSUR)
-- [ ] Multi-jurisdiction flag (PLAN.md §A15) — Saudi + UAE + Turkey
+- [ ] Multi-jurisdiction flag (BEHAVIOR_AND_ATTENTION.md §A15) — Saudi + UAE + Turkey
 
 ## v1.0 — Production
 **Target: +4 weeks**
@@ -68,19 +68,17 @@
 - [ ] Documentation for regulator-facing audit (the auditor reads this)
 - [ ] Customer onboarding flow (first customer)
 
-## What I will NOT do (honest scoping)
+## Principles
 
-- ❌ Pretend this is production-grade before it is
-- ❌ Add features that look impressive but aren't tested
-- ❌ Submit a CV that claims more than this repo proves
-- ❌ Use real customer data without explicit consent
+- ❌ No production-grade claims before they are earned
+- ❌ No untested features
+- ❌ No real customer data without explicit consent
 - ❌ Bypass regulatory version locking (every decision must be version-stamped)
 
 ## Why this roadmap is public
 
 1. **Customer credibility** — if I'm asking SFDA submitters to trust this agent, transparency matters
-2. **Self-discipline** — public commitments are harder to break
-3. **Hiring signal** — recruiters can see exactly where I am, no overselling
+2. **Accountability** — public commitments are harder to break
 
 ## v1.0 success criteria
 

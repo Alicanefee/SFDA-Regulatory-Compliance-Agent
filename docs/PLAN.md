@@ -1,7 +1,7 @@
-# SFDA AI Kontrol Ajanı — Nihai Detaylı Plan (kullanıcı tarafından sağlandı)
+# SFDA AI Kontrol Ajanı — Detaylı Plan
 
-> Bu plan kullanıcının kendi tasarımıdır. Mühendislik seviyesinde uygulanabilir olmak üzere yazılmıştır.
-> Kaydedilme tarihi: 2026-09-24
+> Mühendislik seviyesinde uygulanabilir olmak üzere yazılmış proje planı.
+> Son güncelleme: 2026-09-24
 
 ---
 
@@ -104,7 +104,7 @@ Bu paket, LLM'in dikkatini yalnızca ilgili yasal kurala ve kullanıcı kanıtı
 
 ## 6. Yerel Excel Kaydı
 
-Veritabanı yok. Tüm süreç `.xlsx` dosyasında tutulur. 6 sheet: Process, Documents, Classification, Validation, API_Log, (5. sheet önerisi: Audit)
+Veritabanı yok. Tüm süreç `.xlsx` dosyasında tutulur. 6 sheet: Process, Documents, Classification, Validation, API_Log, Audit
 
 ## 7. Web Arayüzü ve Model/API Seçimi
 

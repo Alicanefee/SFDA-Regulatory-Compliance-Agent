@@ -1,4 +1,4 @@
-# Core dependencies for the portfolio
+# Core dependencies — SFDA Regulatory Compliance Agent
 # Tested on Python 3.11+
 
 # Cohere SDK (primary LLM provider — Command R+, Embed v3, Rerank)

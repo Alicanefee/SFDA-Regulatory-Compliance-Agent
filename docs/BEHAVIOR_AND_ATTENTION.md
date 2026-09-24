@@ -1,13 +1,12 @@
 # SFDA AI Kontrol Ajanı — Davranış, Dikkat ve Refinmanlar
 
-> Bu doküman kullanıcı tarafından sağlanan [`SFDA_Agent_Plan.md`](SFDA_Agent_Plan.md) planına ek olarak hazırlanmıştır.
-> İki eksik parçayı doldurur: (1) Ajan davranışı/kimliği, (2) Dikkat öncelik listesi. Ayrıca plana 15 kritik refinman ekler.
+> Bu doküman [`PLAN.md`](PLAN.md) planını tamamlar: (1) ajan davranışı/kimliği, (2) dikkat öncelik listesi ve (3) plana 15 kritik refinman.
 
 ---
 
-## BÖLÜM A — Plana 15 Kritik Refinman (eklenti)
+## BÖLÜM A — Plana 15 Kritik Refinman
 
-Bu maddeler kullanıcı planındaki mimariyi bozmadan, onu daha robust hale getirir.
+Bu maddeler plandaki mimariyi bozmadan, onu daha robust hale getirir.
 
 ### A1. Sürüm Kilidi (Version Lock) — Kritik
 
@@ -50,7 +49,7 @@ Plan "kaynak gösterimi" diyor ama mekanizmayı detaylandırmadı. Üç katmanl�
 | **L2 Tool-based lookup** | LLM, `lookup_rule(rule_id)` tool'unu çağırarak clause text'ini verify etmeden cite edemez | Orta seviye fabrication |
 | **L3 Post-process validator** | LLM'in ürettiği her `rule_id` gerçek retrieved_rules listesinde var mı diye kontrol eder; yoksa finding'i "unverified" işaretiyle düşür | LLM preamble'ı görmezden gelse bile |
 
-Bu zaten [00-flagship/regulatory-precheck-agent](ali-can-efe-portfolio/00-flagship/regulatory-precheck-agent/) içinde uygulandı — SFDA ajanına aynısı taşımalı.
+v0.1 MVP'de (`src/main.py`) bu savunmanın basitleştirilmiş hali uygulanmıştır; ajan modüllerine aynı yapı taşınacaktır.
 
 ### A4. Class Değişimi Cascade
 
@@ -208,7 +207,7 @@ Ajan **"Mukim bir regülatuvar asistanı"** olmalı:
 | 1 | **"Bilmiyorum" demeyi bilmeli** | Borderline durumda "karar verilemiyor — insan review" demek, yanlış karardan iyi |
 | 2 | **Conservative by design** | Borderline class B/C'de C'ye çek. SFDA safety-first ile uyumlu |
 | 3 | **Pre-check citation** | LLM returnden ettiği `rule_id` gerçekten retrieved_rules içinde var mı diye verify etmeden output verme |
-| 4 | **Time-aware** | Bugün 2026-09-24. MDS-G27 (Aug 2025) → etkili. MDS-G010 v2 çıkmadı → v1.0 hala geçerli. Yeni sürüm geldi → "eski kararları gözden geçir" uyarısı |
+| 4 | **Time-aware** | Karar tarihine göre değerlendir (ör. 2026-09-24 itibarıyla: MDS-G27 (Aug 2025) → etkili. MDS-G010 v2 çıkmadı → v1.0 hala geçerli). Yeni sürüm geldi → "eski kararları gözden geçir" uyarısı |
 | 5 | **Disclaimer mandatory** | Her output'ta "Bu agent resmi SFDA tavsiyesi değildir; resmi onay için SFDA'ya başvurun" yazmalı |
 | 6 | **Audit-ready** | Her karar "Bu neye dayanıyor?" sorusuna yanıt verebilmeli (hash chain + version snapshot) |
 | 7 | **Reverse-check translation** | Arabic + English dokümanlar aynı bulguyu üretmeli. Tutarlılık testi |
@@ -390,12 +389,10 @@ T2 (2027-03-02): Agent tetiklenir →
 
 ---
 
-## BÖLÜM E — Sonraki Adım
+## BÖLÜM E — Sonraki Adım: UAE MoHAP
 
-Bu doküman Saudi için planı tamamlar. **Sonraki adım**:
+Saudi planı bu dokümanla tamamlanmıştır. Sonraki adım, aynı yapının **UAE MoHAP** için hazırlanmasıdır. Temel farklar:
 
-- **Implementasyon öncesi** — bu planı ** UAE MoHAP** için de hazırlamak
-- UAE için farklar:
   - Yasa: Federal Law No. 8 of 2023 (Medical Devices)
   - Regulatory body: MoHAP (Saudi'de SFDA)
   - MDMA eşdeğeri: MoHAP Device Registration Certificate
@@ -405,4 +402,4 @@ Bu doküman Saudi için planı tamamlar. **Sonraki adım**:
   - Vigilance timeline: FSCA 10 gün (Saudi'de 5)
   - PSUR: Class IIa 2 yılda, IIb/III yıllık
 
-Sonraki mesajında UAE planını paylaş; o plana da aynı "ajan davranışı + dikkat listesi + refinmanlar" ekini hazırlayacağım. Daha sonra her ikisini karşılaştırıp **ortak çekirdek** + **jurisdiction-spesifik modüller** olarak ayırabiliriz (A15 multi-jurisdiction flag'in temeli).
+UAE planı da aynı "ajan davranışı + dikkat listesi + refinmanlar" yapısıyla hazırlandıktan sonra iki plan **ortak çekirdek** + **jurisdiction-spesifik modüller** olarak ayrılacaktır (A15 multi-jurisdiction flag'in temeli).

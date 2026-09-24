@@ -1,6 +1,6 @@
 # Architecture — SFDA Regulatory Compliance Agent
 
-> Detailed technical architecture. See PLAN.md for the user-authored nihai plan.
+> Detailed technical architecture. See [PLAN.md](PLAN.md) for the full project plan.
 
 ## System diagram (4-layer)
 
@@ -157,7 +157,7 @@ For documents > 1024k tokens (technical files, clinical evaluation reports):
 
 Tools: LangChain `load_summarize_chain` (map_reduce, refine), sliding window.
 
-## Failure modes I've anticipated
+## Anticipated failure modes
 
 | Failure | Mitigation |
 |---|---|
