@@ -9,7 +9,7 @@
 
 > ⚠️ **For demonstration and testing purposes only.** The regulatory corpus is synthetic and the sample submission is fictional. The output is not legal or regulatory advice and not a regulatory clearance. **All legal and regulatory obligations arising from use of this software remain solely with the user.** See [DISCLAIMER.md](DISCLAIMER.md).
 
-**Author**: Ali Can Efe — Dubai, UAE
+**Author**: Ali Can Efe
 
 ---
 
@@ -162,4 +162,4 @@ Full terms: [DISCLAIMER.md](DISCLAIMER.md).
 
 ## 👤 Author
 
-**Ali Can Efe** — Medical device industry expert and advisor with 13 years across product management, regulatory compliance and AI-enabled imaging in the Middle East, Turkey & Africa (META). Based in Dubai, UAE.
+**Ali Can Efe** — Medical device industry expert and advisor with 13 years of experience across different departments: product management, regulatory compliance and AI-enabled imaging in the Middle East, Turkey & Africa (META).
